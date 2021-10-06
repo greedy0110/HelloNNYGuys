@@ -1,0 +1,120 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>대충 조 구성하고 빨리 시작하자.</title>
+  </head>
+  <body>
+    <form onsubmit="return doSomething();">
+      <label for="n1">디싸</label><br />
+      <input id="n1" type="text" value="0" /><br />
+      <label for="n2">Flyer</label><br />
+      <input id="n2" type="text" value="0" /><br />
+      <label for="n3">챌린저</label><br />
+      <input id="n3" type="text" value="0" /><br />
+      <label for="n4">비기너</label><br />
+      <input id="n4" type="text" value="0" /><br />
+      <label for="n5">Primer</label><br />
+      <input id="n5" type="text" value="0" /><br />
+      <br />
+      <input type="submit" value="조 만들기" />
+    </form>
+  </body>
+  <script>
+    function doSomething() {
+      const NUM_MEMBER = 4;
+
+      let nums = new Array(5);
+
+      nums[0] = parseInt(document.getElementById("n1").value);
+      nums[1] = parseInt(document.getElementById("n2").value);
+      nums[2] = parseInt(document.getElementById("n3").value);
+      nums[3] = parseInt(document.getElementById("n4").value);
+      nums[4] = parseInt(document.getElementById("n5").value);
+
+      const reducer = (accumulator, curr) => accumulator + curr;
+      let total_num = nums.reduce(reducer);
+
+      let total_group_num = Math.ceil(total_num / NUM_MEMBER);
+
+      let groups = new Array(total_group_num);
+      for (let i = 0; i < total_group_num; i++) {
+        groups[i] = [0, 0, 0, 0, 0];
+      }
+
+      let st = 0;
+      for (let i = 0; i < 5; i++) {
+        let num = nums[i];
+        // st 부터 첫 라인은 다 설치한다.
+        if (st != 0) {
+          let remain = total_group_num - st;
+          if (remain >= num) {
+            // 다 깔고 끝.
+            for (let j = 0; j < num; j++) {
+              groups[st][i]++;
+              st++;
+            }
+            if (st == total_group_num) st = 0;
+            continue;
+          }
+          // 나머지만 깔고 진행하자.
+          for (let j = 0; j < remain; j++) {
+            groups[st][i]++;
+            st++;
+          }
+          if (st == total_group_num) st = 0;
+
+          num -= remain;
+        }
+
+        // 계산으로 한번에 채울 수 있는 영역
+        let rectangle = Math.floor(num / total_group_num);
+        for (let group = 0; group < total_group_num; group++) {
+          groups[group][i] += rectangle;
+          num -= rectangle;
+        }
+
+        // 남은걸 다 깔 수 있다. (num이 남은 것.)
+        for (let group = 0; group < num; group++) {
+          groups[group][i] += 1;
+        }
+        st = num;
+      }
+
+      for (let i = 0; i < total_group_num; i++) {
+        let group = groups[i];
+        console.log("###########");
+        for (let z = 0; z < 5; z++) {
+          console.log(group[z]);
+        }
+      }
+
+      createTable(groups);
+
+      alert("Form submitted!" + total_group_num);
+      return false;
+    }
+
+    function createTable(tableData) {
+      var table = document.createElement("table");
+      var tableBody = document.createElement("tbody");
+
+      tableData.forEach(function (rowData) {
+        var row = document.createElement("tr");
+
+        rowData.forEach(function (cellData) {
+          var cell = document.createElement("td");
+          cell.appendChild(document.createTextNode(cellData));
+          row.appendChild(cell);
+        });
+
+        tableBody.appendChild(row);
+      });
+
+      table.appendChild(tableBody);
+      document.body.appendChild(table);
+    }
+  </script>
+</html>
